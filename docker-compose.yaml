@@ -1,1 +1,38 @@
+version: "3.7"
+services:
+  jenkins:
+    container_name: my-jenkins
+    image: jenkins/jenkins:lts
+    environment:
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
+    ports:
+      - "8080:8080"  # Expose Jenkins on port 8080
+    depends_on:
+      - mongo
+    links:
+      - mongo:mongo_db_host
+    volumes:
+      - jenkins_data:/var/jenkins_home  # Persist Jenkins data
 
+  node.js:
+    container_name: my-node.js
+    image: httpd:latest
+    ports:
+      - "8081:80"  # Expose HTTPD (Apache) on port 8081
+    depends_on:
+      - mongo
+    links:
+      - mongo:mongo_db_host
+
+  mongo:
+    container_name: my-mongo
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - "27017:27017"  # Expose MongoDB on the default port
+
+volumes:
+  jenkins_data:
+    driver: local
